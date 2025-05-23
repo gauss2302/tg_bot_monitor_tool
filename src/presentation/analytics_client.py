@@ -140,31 +140,3 @@ class AnalyticsMiddleware:
             MessageHandler(filters.ALL, self.track_message),
             group=-1  # Run before other handlers
         )
-
-        # Note: For callback queries, you'll need to add tracking in your callback handlers
-        # or create a custom CallbackQueryHandler wrapper
-
-
-# Usage example for a monitored bot:
-"""
-# In your monitored bot's main.py:
-
-analytics_client = AnalyticsClient(
-    analytics_url="http://your-analytics-server:8000",
-    api_key="your-secret-api-key",
-    bot_token="your-bot-token"
-)
-
-middleware = AnalyticsMiddleware(analytics_client)
-
-application = Application.builder().token("your-bot-token").build()
-middleware.setup_tracking(application)
-
-# Your regular handlers...
-application.add_handler(CommandHandler("start", start_handler))
-# ... other handlers
-
-# Don't forget to close the client when shutting down
-async def shutdown():
-    await analytics_client.close()
-"""

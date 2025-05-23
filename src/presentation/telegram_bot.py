@@ -1,12 +1,15 @@
 # src/presentation/telegram_bot.py
 import asyncio
 import logging
+
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters
 
+from ..infrastructure.analytics_sdk import AnalyticsSDK
 from ..infrastructure.telegram.bot_handlers import TelegramBotHandlers
 from ..application.services.monitoring_service import BotMonitoringService # For starting/stopping monitoring
 
 logger = logging.getLogger(__name__)
+
 
 class TelegramBotApplication:
     """Manages the Telegram bot application setup and execution."""
@@ -25,6 +28,22 @@ class TelegramBotApplication:
         self.application = Application.builder().token(self.token).build()
         self._setup_handlers()
 
+    # Initialize analytics
+    analytics = AnalyticsSDK(
+        webhook_url="http://your-analytics-server:8000",
+        bot_token="YOUR_BOT_TOKEN",
+        webhook_secret="your-webhook-secret",
+        batch_size=5,
+        batch_timeout=10
+    )
+
+    # Setup middleware
+    # Create application
+    app = Application.builder().token("YOUR_BOT_TOKEN").build()
+
+    # Setup automatic tracking
+    # middleware.setup_auto_tracking(app)
+
     def _setup_handlers(self) -> None:
         """Setup command and callback handlers."""
         # Command handlers
@@ -38,17 +57,9 @@ class TelegramBotApplication:
         # Callback query handler
         self.application.add_handler(CallbackQueryHandler(self.handlers.callback_handler))
 
-        # Optional: Add a message handler for unknown commands or general messages if needed
-        # self.application.add_handler(MessageHandler(filters.COMMAND, self.unknown_command_handler))
-        # self.application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.echo_handler))
+
 
         logger.info("Telegram bot handlers configured.")
-
-
-    # Example for unknown command handler
-    # async def unknown_command_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    #     if self.handlers._is_admin(update.effective_user.id): # Accessing protected member, consider better way
-    #         await update.message.reply_text("❓ Sorry, I didn't understand that command. Type /start for help.")
 
 
     async def run(self) -> None:
