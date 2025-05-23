@@ -1,0 +1,4 @@
+.env
+.idea
+.venv
+analytics_monitor.db
